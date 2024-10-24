@@ -11,29 +11,29 @@ import helper
 
 # Setting page layout
 st.set_page_config(
-    page_title="Object Detection using YOLOv8",
+    page_title="利用YoLOV8检测",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # Main page heading
-st.title("Object Detection And Tracking using YOLOv8")
+st.title("基于YoLoV8检测与跟踪")
 
 # Sidebar
-st.sidebar.header("ML Model Config")
+st.sidebar.header("模型配置")
 
 # Model Options
 model_type = st.sidebar.radio(
-    "Select Task", ['Detection', 'Segmentation'])
+    "选择任务", ['检测', '分割'])
 
 confidence = float(st.sidebar.slider(
-    "Select Model Confidence", 25, 100, 40)) / 100
+    "模型置信度", 25, 100, 40)) / 100
 
 # Selecting Detection Or Segmentation
-if model_type == 'Detection':
+if model_type == '检测':
     model_path = Path(settings.DETECTION_MODEL)
-elif model_type == 'Segmentation':
+elif model_type == '分割':
     model_path = Path(settings.SEGMENTATION_MODEL)
 
 # Load Pre-trained ML Model
@@ -43,15 +43,15 @@ except Exception as ex:
     st.error(f"Unable to load model. Check the specified path: {model_path}")
     st.error(ex)
 
-st.sidebar.header("Image/Video Config")
+st.sidebar.header("图片/视频 配置")
 source_radio = st.sidebar.radio(
-    "Select Source", settings.SOURCES_LIST)
+    "选择资源", settings.SOURCES_LIST)
 
 source_img = None
 # If image is selected
 if source_radio == settings.IMAGE:
     source_img = st.sidebar.file_uploader(
-        "Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
+        "请选择图片...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
 
     col1, col2 = st.columns(2)
 
@@ -78,21 +78,21 @@ if source_radio == settings.IMAGE:
             st.image(default_detected_image_path, caption='Detected Image',
                      use_column_width=True)
         else:
-            if st.sidebar.button('Detect Objects'):
+            if st.sidebar.button('检测目标'):
                 res = model.predict(uploaded_image,
                                     conf=confidence
                                     )
                 boxes = res[0].boxes
                 res_plotted = res[0].plot()[:, :, ::-1]
-                st.image(res_plotted, caption='Detected Image',
+                st.image(res_plotted, caption='检测图片',
                          use_column_width=True)
                 try:
-                    with st.expander("Detection Results"):
+                    with st.expander("检测结果"):
                         for box in boxes:
                             st.write(box.data)
                 except Exception as ex:
                     # st.write(ex)
-                    st.write("No image is uploaded yet!")
+                    st.write("没有图片上传!")
 
 elif source_radio == settings.VIDEO:
     helper.play_stored_video(confidence, model)
@@ -107,4 +107,4 @@ elif source_radio == settings.YOUTUBE:
     helper.play_youtube_video(confidence, model)
 
 else:
-    st.error("Please select a valid source type!")
+    st.error("请选择有效的资源类型!")
